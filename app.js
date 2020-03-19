@@ -2,12 +2,35 @@
 // Module to take care of the budget function
 ////////////////////
 
+// IIFE function - immediately invoked due to () on line 15
+// Inner functions can access vars and functions of outer functions due to CLOSURES even after outer function has returned
+
 var budgetController = (function() {
     
-    // Some code
+    var Expense = function(id, description, value) {
+        this.id = id;
+        this.description = description;
+        this.value = value;
+    };
     
-})(); // IIFE function - immediately invoked due to () on line 15
-// Inner functions can access vars and functions of outer functions due to CLOSURES even after outer function has returned
+    var Income = function(id, description, value) {
+        this.id = id;
+        this.description = description;
+        this.value = value;
+    };
+    
+    var data = {
+        allItems: {
+            exp: [],
+            inc: []
+        },
+        totals: {
+            exp: 0,
+            inc: 0
+        }
+    }
+    
+})(); 
 
 
 ////////////////////
@@ -47,13 +70,30 @@ var UIController = (function() {
 
 var controller = (function(budgetCtrl, UICtrl) { // Can pass args into function
     
-    var DOM = UICtrl.getDOMstrings();
+    // Place all event listeners
+    var setupEventListeners = function() {
+        
+        var DOM = UICtrl.getDOMstrings();
+        
+        document.querySelector(DOM.inputBtn).addEventListener('click', ctrlAddItem);
     
+        // Happens on the whole document, not a particular var
+        // keypress - any button pressed
+        document.addEventListener('keypress', function(event) {
+
+            if (event.keyCode === 13 || event.which === 13) {
+                ctrlAddItem();
+            }
+        });
+    };
+    
+    
+    
+    // Called when we want to add a new item
     var ctrlAddItem = function() {
         
         // 1. Get the field input data
         var input = UICtrl.getInput();
-        console.log(input);
         
         // 2. Add the item to the budget controller
         
@@ -62,21 +102,19 @@ var controller = (function(budgetCtrl, UICtrl) { // Can pass args into function
         // 4. Calculate the budget
         
         // 5. Display the budget on the UI
-    }
+    };
     
-    document.querySelector(DOM.inputBtn).addEventListener('click', ctrlAddItem);
-    
-    // Happens on the whole document, not a particular var
-    // keypress - any button pressed
-    document.addEventListener('keypress', function(event) {
-             
-        if (event.keyCode === 13 || event.which === 13) {
-            ctrlAddItem();
+    return {
+        init: function() {
+            console.log('App started');
+            setupEventListeners();
         }
-        
-    });
+    };
     
 })(budgetController, UIController);
+
+// Needed to invoke event listeners
+controller.init();
 
 
 
