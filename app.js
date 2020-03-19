@@ -19,6 +19,7 @@ var budgetController = (function() {
         this.value = value;
     };
     
+    
     var data = {
         allItems: {
             exp: [],
@@ -28,7 +29,42 @@ var budgetController = (function() {
             exp: 0,
             inc: 0
         }
-    }
+    };
+    
+    return {
+        // Adds new item
+        addItem: function(type, des, val) {
+            var newItem, ID;
+            
+            // [1 2 3 4 5], next ID = 6
+            // [1 2 4 6 8], next ID = 9
+            // ID = last ID + 1
+            
+            // Create new ID
+            if (data.allItems[type].length > 0) {                
+                ID = data.allItems[type][data.allItems[type].length - 1].id + 1;
+            } else {
+                ID = 0;
+            }
+            
+            //Create new item based on inc or exp
+            if (type === 'exp'){
+                newItem = new Expense(ID, des, val);
+            } else if (type === 'inc') {
+                newItem = new Income(ID, des, val);
+            }
+            
+            // Push it into our data structure
+            data.allItems[type].push(newItem);
+            
+            // Return new element
+            return newItem;
+        },
+        
+        testing: function() {
+            console.log(data);
+        }
+    };
     
 })(); 
 
@@ -50,7 +86,7 @@ var UIController = (function() {
     return {
         getInput: function() {
             return {
-                type: document.querySelector(DOMstrings.inputType).value, // Reads value of the type. Either inc or exp v(+ or -)
+                type: document.querySelector(DOMstrings.inputType).value, // Reads value of the type. Either inc or exp (+ or -)
                 description: document.querySelector(DOMstrings.inputDescription).value,
                 value: document.querySelector(DOMstrings.inputValue).value
             };
@@ -91,11 +127,13 @@ var controller = (function(budgetCtrl, UICtrl) { // Can pass args into function
     
     // Called when we want to add a new item
     var ctrlAddItem = function() {
+        var input, newItem;
         
         // 1. Get the field input data
-        var input = UICtrl.getInput();
+        input = UICtrl.getInput();
         
         // 2. Add the item to the budget controller
+        newItem = budgetCtrl.addItem(input.type, input.description, input.value); // Accepts the 3 parameters from the user input
         
         // 3. Add the item to the UI
         
