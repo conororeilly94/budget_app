@@ -207,32 +207,38 @@ var UIController = (function () {
         expensesPercLabel: '.item__percentage',
         dateLabel: '.budget__title--month'
     };
-    
+
     var formatNumber = function (num, type) {
-            var numSplit, int, dec, type;
-            /*
-                + or - before the number
-                exactly 2 decimal points
-                comma separating the thousands
-                
-                2320.4567 -> + 2,310.46
-            */
+        var numSplit, int, dec, type;
+        /*
+            + or - before the number
+            exactly 2 decimal points
+            comma separating the thousands
+            
+            2320.4567 -> + 2,310.46
+        */
 
-            num = Math.abs(num);
-            num = num.toFixed(2); // Rounds to 2 decimal places
+        num = Math.abs(num);
+        num = num.toFixed(2); // Rounds to 2 decimal places
 
-            numSplit = num.split('.');
+        numSplit = num.split('.');
 
-            int = numSplit[0];
-            if (int.length > 3) {
-                int = int.substr(0, int.length - 3) + ',' + int.substr(int.length - 3, 3); // input: 23310, output: 23,310
-            }
+        int = numSplit[0];
+        if (int.length > 3) {
+            int = int.substr(0, int.length - 3) + ',' + int.substr(int.length - 3, 3); // input: 23310, output: 23,310
+        }
 
-            dec = numSplit[1];
+        dec = numSplit[1];
 
-            return (type === 'exp' ? '-' : '+') + ' ' + int + '.' + dec;
+        return (type === 'exp' ? '-' : '+') + ' ' + int + '.' + dec;
 
-        };
+    };
+
+    var nodeListForEach = function (list, callback) {
+        for (var i = 0; i < list.length; i++) {
+            callback(list[i], i);
+        }
+    };
 
     return {
         getInput: function () {
@@ -289,7 +295,7 @@ var UIController = (function () {
         },
 
         displayBudget: function (obj) {
-            
+
             obj.budget > 0 ? type = 'inc' : type = 'exp';
 
             document.querySelector(DOMstrings.budgetLabel).textContent = formatNumber(obj.budget, type);
@@ -308,12 +314,6 @@ var UIController = (function () {
 
             var fields = document.querySelectorAll(DOMstrings.expensesPercLabel);
 
-            var nodeListForEach = function (list, callback) {
-                for (var i = 0; i < list.length; i++) {
-                    callback(list[i], i);
-                }
-            };
-
             nodeListForEach(fields, function (current, index) {
 
                 if (percentages[index] > 0) {
@@ -324,19 +324,35 @@ var UIController = (function () {
             });
 
         },
-        
-        displayMonth: function() {
+
+        displayMonth: function () {
             var now, months, month, year;
-            
+
             now = new Date();
             // var christmas = new Date(2020, 11, 25);
-            
+
             months = ['January', 'Febraury', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
             month = now.getMonth();
-            
+
             year = now.getFullYear();
             document.querySelector(DOMstrings.dateLabel).textContent = months[month] + ' ' + year;
+
+        },
+
+        changedType: function () {
+
+            var fields = document.querySelectorAll(
+                DOMstrings.inputType + ',' +
+                DOMstrings.inputDescription + ',' +
+                DOMstrings.inputValue);
             
+            nodeListForEach(fields, function(cur) {
+               cur.classList.toggle('red-focus'); 
+            });
+            
+            document.querySelector(DOMstrings.inputBtn).classList.toggle('red');
+            
+
         },
 
         getDOMstrings: function () {
@@ -373,6 +389,9 @@ var controller = (function (budgetCtrl, UICtrl) { // Can pass args into function
         });
 
         document.querySelector(DOM.container).addEventListener('click', ctrlDeleteItem);
+
+        document.querySelector(DOM.inputType).addEventListener('change', UICtrl.changedType);
+
     };
 
     var updateBudget = function () {
